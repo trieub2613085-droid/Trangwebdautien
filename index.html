@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Galaxy Memory Gallery</title>
+    <style>
+      :root {
+        --bg-1: #040b1d;
+        --bg-2: #0b1638;
+        --bg-3: #112b58;
+        --panel: rgba(14, 20, 38, 0.66);
+        --glass: rgba(255, 255, 255, 0.08);
+        --line: rgba(145, 175, 255, 0.24);
+        --text: #edf4ff;
+        --muted: #afc4eb;
+        --cyan: #66d9ff;
+        --blue: #6b8dff;
+        --violet: #9f7bff;
+        --pink: #ff7ac6;
+        --gold: #f9d66b;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background:
+          radial-gradient(circle at 20% 20%, rgba(128, 155, 255, 0.22), transparent 28%),
+          radial-gradient(circle at 80% 0%, rgba(88, 209, 255, 0.18), transparent 30%),
+          radial-gradient(circle at 50% 60%, rgba(191, 139, 255, 0.18), transparent 32%),
+          linear-gradient(180deg, var(--bg-1), var(--bg-2) 40%, var(--bg-3));
+        color: var(--text);
+      }
+
+      body {
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      .stars,
+      .stars::before,
+      .stars::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,0.9), transparent),
+          radial-gradient(2px 2px at 30% 70%, rgba(114,220,255,0.85), transparent),
+          radial-gradient(1.6px 1.6px at 50% 40%, rgba(255,255,255,0.8), transparent),
+          radial-gradient(2px 2px at 80% 25%, rgba(255,255,255,0.9), transparent),
+          radial-gradient(2px 2px at 65% 80%, rgba(255,255,255,0.75), transparent),
+          radial-gradient(2.2px 2.2px at 90% 60%, rgba(185,148,255,0.8), transparent),
+          radial-gradient(1.6px 1.6px at 15% 80%, rgba(255,255,255,0.8), transparent);
+        background-repeat: repeat;
+        pointer-events: none;
+        opacity: 0.85;
+      }
+
+      .stars::before {
+        transform: scale(1.2);
+        opacity: 0.7;
+      }
+
+      .stars::after {
+        transform: scale(1.5);
+        opacity: 0.5;
+      }
+
+      .page {
+        position: relative;
+        width: min(1200px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 36px 0 60px;
+      }
+
+      .hero {
+        margin-bottom: 28px;
+        padding: 28px 30px 18px;
+        background: linear-gradient(135deg, rgba(14,23,49,0.7), rgba(18,18,40,0.45));
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 25px 80px rgba(6, 10, 24, 0.6), inset 0 0 0 1px rgba(255,255,255,0.04);
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.2rem, 5vw, 5rem);
+        line-height: 0.94;
+        letter-spacing: -0.06em;
+        display: inline-block;
+        background: linear-gradient(90deg, #e9f3ff 0%, #8ad5ff 22%, #f7d4ff 50%, #98bbff 78%, #dff2ff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 12px rgba(160, 196, 255, 0.35);
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 18px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: rgba(118, 148, 255, 0.1);
+        border: 1px solid rgba(140, 180, 255, 0.26);
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .tag::before {
+        content: "✦";
+        color: var(--gold);
+        text-shadow: 0 0 18px rgba(249, 214, 107, 0.9);
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 18px;
+        grid-auto-rows: 110px;
+      }
+
+      .photo {
+        position: relative;
+        overflow: hidden;
+        border-radius: 28px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255, 217, 102, 0.55);
+        box-shadow:
+          0 0 0 1px rgba(255, 214, 89, 0.22),
+          0 0 18px rgba(255, 214, 89, 0.22),
+          0 18px 40px rgba(0,0,0,0.25),
+          inset 0 0 0 1px rgba(255,255,255,0.04);
+        transform: translateY(0) rotate(0deg);
+        transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, filter 0.35s ease;
+      }
+
+      .photo::before {
+        content: "";
+        position: absolute;
+        inset: -8px;
+        border-radius: 32px;
+        background: radial-gradient(circle at center, rgba(255, 214, 89, 0.32), rgba(255, 214, 89, 0.12) 28%, rgba(255, 214, 89, 0.02) 52%, transparent 68%);
+        opacity: 0;
+        transition: opacity 0.35s ease;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .photo::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(9, 15, 29, 0.14));
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .photo:hover {
+        transform: translateY(-6px) scale(1.015);
+        box-shadow:
+          0 0 0 1px rgba(255, 214, 89, 0.48),
+          0 0 22px rgba(255, 214, 89, 0.52),
+          0 0 40px rgba(255, 214, 89, 0.22),
+          0 30px 60px rgba(13, 23, 48, 0.55);
+        border-color: rgba(255, 220, 118, 0.7);
+        filter: drop-shadow(0 0 18px rgba(255, 214, 89, 0.3));
+      }
+
+      .photo:hover::before {
+        opacity: 1;
+      }
+
+      .photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        display: block;
+        background: linear-gradient(180deg, rgba(13,22,42,0.5), rgba(8,15,28,0.7));
+        filter: saturate(1.18) contrast(1.08) brightness(0.95) drop-shadow(0 0 12px rgba(255, 214, 89, 0.12));
+        transition: transform 0.45s ease, filter 0.45s ease, brightness 0.45s ease;
+        position: relative;
+        z-index: 0;
+      }
+
+      .photo:hover img {
+        transform: scale(1.04);
+        filter: saturate(1.32) contrast(1.16) brightness(1.07) drop-shadow(0 0 18px rgba(255, 214, 89, 0.22));
+      }
+
+      .photo.medium { grid-column: span 4; grid-row: span 2; }
+      .photo.wide { grid-column: span 6; grid-row: span 2; }
+      .photo.tall { grid-column: span 3; grid-row: span 3; }
+      .photo.full { grid-column: span 12; grid-row: span 2; }
+
+      .photo:nth-child(odd) {
+        transform: rotate(-0.8deg);
+      }
+
+      .photo:nth-child(even) {
+        transform: rotate(0.8deg);
+      }
+
+      .photo:nth-child(odd):hover,
+      .photo:nth-child(even):hover {
+        transform: translateY(-4px) rotate(0deg) scale(1.01);
+      }
+
+      @media (max-width: 840px) {
+        .gallery {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          grid-auto-rows: 220px;
+        }
+
+        .photo.medium,
+        .photo.wide,
+        .photo.tall,
+        .photo.full {
+          grid-column: span 1;
+          grid-row: span 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stars"></div>
+
+    <main class="page">
+      <header class="hero">
+        <p class="eyebrow">Memory vault</p>
+        <h1>Galaxy of us</h1>
+        <div class="tag">One chapter, a thousand stars</div>
+      </header>
+
+      <section class="gallery" id="gallery" aria-label="Photo gallery"></section>
+
+      <script>
+        const images = [
+          "1791260112436.jpg",
+          "1791260112450.jpg",
+          "1791308217943.jpg",
+          "1791308217958.jpg",
+          "1791308989463.jpg",
+          "1791559444518.jpg",
+          "1791559444566.jpg",
+          "1791559444587.jpg",
+          "1791559444606.jpg",
+          "1791559444624.jpg",
+          "1791559444641.jpg",
+          "1791559444660.jpg",
+          "1791559444684.jpg",
+          "1791559444713.jpg",
+          "1791559444737.jpg",
+          "1791559444757.jpg",
+          "1791559444780.jpg",
+          "1791559444808.jpg",
+          "1791559444853.jpg",
+          "1791559444888.jpg",
+          "1791559444928.jpg",
+          "1791559444969.jpg",
+          "1791559444993.jpg",
+          "1791559445020.jpg",
+          "IMG_20260823_105855.jpg",
+          "Picsart_26-02-06_16-11-37-498.jpg",
+          "Picsart_26-03-07_19-28-55-983.jpg",
+          "a28456c9-ff66-445b-aa3a-b7764812c15e.jpeg"
+        ];
+
+        const sizes = ["medium", "wide", "tall", "medium", "wide", "tall", "medium", "wide", "tall"];
+        const gallery = document.getElementById("gallery");
+
+        images.forEach((src, index) => {
+          const figure = document.createElement("figure");
+          const img = document.createElement("img");
+          const size = sizes[index % sizes.length];
+
+          figure.className = `photo ${size}`;
+          img.src = src;
+          img.alt = `Memory ${index + 1}`;
+          img.loading = "lazy";
+
+          figure.appendChild(img);
+          gallery.appendChild(figure);
+        });
+      </script>
+    </main>
+  </body>
+</html>
